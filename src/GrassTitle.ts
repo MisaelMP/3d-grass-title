@@ -75,7 +75,7 @@ export class GrassTitle extends LitElement {
 		:host {
 			display: block;
 			width: 100%;
-			height: 400px;
+			height: 25rem;
 			position: relative;
 		}
 

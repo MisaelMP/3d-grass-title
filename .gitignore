@@ -10,6 +10,7 @@ node_modules/
 # Development
 .cache/
 .parcel-cache/
+.vite/
 
 # Testing
 coverage/
