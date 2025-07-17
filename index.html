@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Development environment for testing the 3D grass typography web component" />
+  <meta name="keywords" content="3D text, grass shader, web component, development, testing, Three.js" />
+  <title>Grass Title - Development</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background: #1a1a1a;
+      color: #ffffff;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .demo-area {
+      background: #2a2a2a;
+      border-radius: 12px;
+      padding: 30px;
+      margin-bottom: 30px;
+    }
+
+    grass-title {
+      display: block;
+      width: 100%;
+      height: 300px;
+      background: linear-gradient(135deg, #1a1a1a, #2a2a2a);
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+
+    .controls {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      background: #333;
+      padding: 20px;
+      border-radius: 8px;
+    }
+
+    .control {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .control label {
+      font-size: 0.9rem;
+      color: #ccc;
+      font-weight: 500;
+    }
+
+    .control input,
+    .control select {
+      padding: 8px 12px;
+      border: 1px solid #555;
+      border-radius: 4px;
+      background: #2a2a2a;
+      color: #fff;
+      font-size: 0.9rem;
+      accent-color: #c5e194;
+    }
+
+    .control input:focus,
+    .control select:focus {
+      outline: none;
+      border-color: #c5e194;
+      box-shadow: 0 0 0 2px rgba(197, 225, 148, 0.2);
+    }
+
+    .control input:hover,
+    .control select:hover {
+      border-color: rgba(197, 225, 148, 0.5);
+    }
+
+    .control input[type='range'] {
+      background: transparent;
+      border: none;
+      padding: 8px 0;
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <grass-title id="grassText" text="GRASS" color="#c5e194" light-intensity="1.5" rotation="[0, 0, 0]"
+      camera-distance="8" grass-density="800" grass-height="1.2"></grass-title>
+    <div class="demo-area">
+
+      <div class="controls">
+        <div class="control">
+          <label for="textInput">Text</label>
+          <input type="text" id="textInput" value="GRASS" maxlength="12" />
+        </div>
+
+        <div class="control">
+          <label for="colorInput">Color</label>
+          <input type="color" id="colorInput" value="#c5e194" />
+        </div>
+
+        <div class="control">
+          <label for="lightInput">Light Intensity</label>
+          <input type="range" id="lightInput" min="0.5" max="3" step="0.1" value="1.5" />
+        </div>
+
+        <div class="control">
+          <label for="rotationInput">Y Rotation</label>
+          <input type="range" id="rotationInput" min="-1.57" max="1.57" step="0.1" value="0" />
+        </div>
+
+        <div class="control">
+          <label for="distanceInput">Camera Distance</label>
+          <input type="range" id="distanceInput" min="2" max="15" step="0.5" value="8" />
+        </div>
+
+        <div class="control">
+          <label for="fontInput">Font</label>
+          <select id="fontInput">
+            <option value="">Helvetiker (Default)</option>
+            <option value="https://threejs.org/examples/fonts/optimer_regular.typeface.json">
+              Optimer
+            </option>
+            <option value="https://threejs.org/examples/fonts/gentilis_regular.typeface.json">
+              Gentilis
+            </option>
+          </select>
+        </div>
+
+        <div class="control">
+          <label for="densityInput">Grass Density</label>
+          <input type="range" id="densityInput" min="200" max="2000" step="50" value="800" />
+        </div>
+
+        <div class="control">
+          <label for="heightInput">Grass Height</label>
+          <input type="range" id="heightInput" min="0.5" max="3" step="0.1" value="1.2" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="/src/index.ts"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const grassText = document.getElementById('grassText');
+      const textInput = document.getElementById('textInput');
+      const colorInput = document.getElementById('colorInput');
+      const lightInput = document.getElementById('lightInput');
+      const rotationInput = document.getElementById('rotationInput');
+      const distanceInput = document.getElementById('distanceInput');
+      const fontInput = document.getElementById('fontInput');
+      const densityInput = document.getElementById('densityInput');
+      const heightInput = document.getElementById('heightInput');
+
+      // Text input
+      textInput.addEventListener('input', function () {
+        grassText.setAttribute('text', this.value.toUpperCase());
+      });
+
+      // Color input
+      colorInput.addEventListener('input', function () {
+        grassText.setAttribute('color', this.value);
+      });
+
+      // Light intensity
+      lightInput.addEventListener('input', function () {
+        grassText.setAttribute('light-intensity', this.value);
+      });
+
+      // Rotation
+      rotationInput.addEventListener('input', function () {
+        const rotation = [0, parseFloat(this.value), 0];
+        grassText.setAttribute('rotation', JSON.stringify(rotation));
+      });
+
+      // Camera distance
+      distanceInput.addEventListener('input', function () {
+        grassText.setAttribute('camera-distance', this.value);
+      });
+
+      // Font selection
+      fontInput.addEventListener('change', function () {
+        if (this.value) {
+          grassText.setAttribute('font-url', this.value);
+        } else {
+          grassText.removeAttribute('font-url');
+        }
+      });
+
+      // Grass density
+      densityInput.addEventListener('input', function () {
+        grassText.setAttribute('grass-density', this.value);
+      });
+
+      // Grass height
+      heightInput.addEventListener('input', function () {
+        grassText.setAttribute('grass-height', this.value);
+      });
+    });
+  </script>
+</body>
+
+</html>
