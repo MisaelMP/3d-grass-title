@@ -35,7 +35,7 @@
 	"license": "MIT",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/misaelm/3d-grass-title.git"
+		"url": "git+https://github.com/misaelm/3d-grass-title.git"
 	},
 	"homepage": "https://github.com/misaelm/3d-grass-title#readme",
 	"bugs": {
