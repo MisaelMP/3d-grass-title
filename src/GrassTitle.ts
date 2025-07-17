@@ -53,6 +53,11 @@ export class GrassTitle extends LitElement {
 		attribute: 'grass-height',
 	})
 	grassHeight: number = 1.2;
+	@property({
+		type: String,
+		reflect: true,
+	})
+	link?: string;
 
 	private scene!: THREE.Scene;
 	private camera!: THREE.PerspectiveCamera;
@@ -64,6 +69,7 @@ export class GrassTitle extends LitElement {
 	private fontLoader!: FontLoader;
 	private font!: Font;
 	private resizeObserver!: ResizeObserver;
+	private isAnimating: boolean = false;
 
 	static styles = css`
 		:host {
@@ -77,11 +83,12 @@ export class GrassTitle extends LitElement {
 			width: 100%;
 			height: 100%;
 			display: block;
+			cursor: pointer;
 		}
 	`;
 
 	render() {
-		return html`<canvas></canvas>`;
+		return html`<canvas @click="${this.handleClick}"></canvas>`;
 	}
 
 	firstUpdated() {
@@ -115,7 +122,6 @@ export class GrassTitle extends LitElement {
 		);
 		this.camera.position.set(0, 0, this.cameraDistance);
 
-
 		this.renderer = new THREE.WebGLRenderer({
 			canvas: this.canvas,
 			antialias: true,
@@ -130,7 +136,6 @@ export class GrassTitle extends LitElement {
 
 		const ambientLight = new THREE.AmbientLight(0x404040, 0.4);
 		this.scene.add(ambientLight);
-
 	}
 
 	private loadFont() {
@@ -139,7 +144,6 @@ export class GrassTitle extends LitElement {
 		const fontPath =
 			this.fontUrl ||
 			'https://threejs.org/examples/fonts/helvetiker_regular.typeface.json';
-
 
 		this.fontLoader.load(
 			fontPath,
@@ -162,7 +166,6 @@ export class GrassTitle extends LitElement {
 	}
 
 	private async createGrassField() {
-
 		if (this.grassField) {
 			this.scene.remove(this.grassField);
 			this.grassField.geometry.dispose();
@@ -209,10 +212,7 @@ export class GrassTitle extends LitElement {
 				(textGeometry.boundingBox!.max.y - textGeometry.boundingBox!.min.y);
 			textGeometry.translate(centerOffsetX, centerOffsetY, 0);
 
-
-
-
-			// Create particles following canvas text sampling (tutorial approach)
+			// Create particles following canvas text sampling
 			this.grassField = createGrassFieldFromTextCanvas(
 				this.text,
 				this.grassDensity,
@@ -232,7 +232,6 @@ export class GrassTitle extends LitElement {
 					uniforms.uLightIntensity.value = this.lightIntensity;
 				}
 			}
-
 		} catch (error) {
 			console.error('Error creating grass text:', error);
 		}
@@ -288,9 +287,7 @@ export class GrassTitle extends LitElement {
 		}
 	}
 
-
 	updated(changedProperties: Map<string, any>) {
-			
 		// Handle text changes - recreate grass field if font is loaded
 		if (changedProperties.has('text') && this.font) {
 			this.createGrassField();
@@ -353,4 +350,78 @@ export class GrassTitle extends LitElement {
 			this.loadFont();
 		}
 	}
+
+	private handleClick = () => {
+		if (!this.link || this.isAnimating) return;
+
+		this.isAnimating = true;
+		this.startParticleSpreadAnimation();
+	};
+
+	private startParticleSpreadAnimation = () => {
+		if (!this.grassField || !this.grassField.material) return;
+
+		const material = this.grassField.material as THREE.ShaderMaterial;
+		const uniforms = material.uniforms as Record<string, THREE.IUniform>;
+
+		if (uniforms.uSpread) {
+			// Animate spread from 0 to 1
+			const startTime = performance.now();
+			const duration = 800; // 800ms for spread animation
+
+			const animateSpread = () => {
+				const elapsed = performance.now() - startTime;
+				const progress = Math.min(elapsed / duration, 1);
+
+				// Smooth easing function
+				const easeProgress = 1 - Math.pow(1 - progress, 3);
+				uniforms.uSpread.value = easeProgress;
+
+				if (progress < 1) {
+					requestAnimationFrame(animateSpread);
+				} else {
+					// Start return animation after a brief pause
+					setTimeout(() => {
+						this.startParticleReturnAnimation();
+					}, 200);
+				}
+			};
+
+			animateSpread();
+		}
+	};
+
+	private startParticleReturnAnimation = () => {
+		if (!this.grassField || !this.grassField.material) return;
+
+		const material = this.grassField.material as THREE.ShaderMaterial;
+		const uniforms = material.uniforms as Record<string, THREE.IUniform>;
+
+		if (uniforms.uSpread) {
+			// Animate spread from 1 back to 0
+			const startTime = performance.now();
+			const duration = 600; // 600ms for return animation
+
+			const animateReturn = () => {
+				const elapsed = performance.now() - startTime;
+				const progress = Math.min(elapsed / duration, 1);
+
+				// Smooth easing function
+				const easeProgress = 1 - Math.pow(1 - progress, 2);
+				uniforms.uSpread.value = 1 - easeProgress;
+
+				if (progress < 1) {
+					requestAnimationFrame(animateReturn);
+				} else {
+					// Navigate after return animation completes
+					this.isAnimating = false;
+					if (this.link) {
+						window.location.href = this.link;
+					}
+				}
+			};
+
+			animateReturn();
+		}
+	};
 }

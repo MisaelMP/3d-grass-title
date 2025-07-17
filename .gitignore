@@ -1,5 +1,19 @@
-# Node.js
+# Dependencies
 node_modules/
+.pnp
+.pnp.js
+
+# Production build
+/dist/
+/build/
+
+# Development
+.cache/
+.parcel-cache/
+
+# Testing
+coverage/
+.nyc_output
 
 # Logs
 logs
@@ -7,9 +21,14 @@ logs
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
 
-# Vite
-/dist/
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
 
 # Optional npm cache directory
 .npm
@@ -20,12 +39,34 @@ yarn-error.log*
 # Optional REPL history
 .node_repl_history
 
-# MacOS
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Temporary folders
+tmp/
+temp/
+
+# OS generated files
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
 
 # Editor directories and files
 .idea
-.vscode
+.vscode/
+*.swp
+*.swo
+*~
 *.sublime-project
-*.sublime-workspace 
-.env
+*.sublime-workspace
+
+# TypeScript
+*.tsbuildinfo

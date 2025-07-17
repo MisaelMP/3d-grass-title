@@ -62,10 +62,12 @@ export function createGrassFieldFromTextCanvas(
 		uniforms: {
 			uTime: { value: 0 },
 			uColor: { value: new THREE.Color(0x4a7c59) }, // Will be updated by component
-			uLightIntensity: { value: 1.5 } // Will be updated by component
+			uLightIntensity: { value: 1.5 }, // Will be updated by component
+			uSpread: { value: 0.0 } // For click animation
 		},
 		vertexShader: `
 			uniform float uTime;
+			uniform float uSpread;
 			varying vec3 vNormal;
 			varying vec3 vPosition;
 			
@@ -84,7 +86,14 @@ export function createGrassFieldFromTextCanvas(
 				pos.y += windY;
 				pos.z += windZ;
 				
-				vec4 mvPosition = modelViewMatrix * instanceMatrix * vec4(pos, 1.0);
+				// Add spread effect for click animation
+				vec3 spreadOffset = vec3(
+					sin(float(gl_InstanceID) * 0.5) * uSpread * 5.0,
+					cos(float(gl_InstanceID) * 0.3) * uSpread * 5.0,
+					sin(float(gl_InstanceID) * 0.8) * uSpread * 2.0
+				);
+				
+				vec4 mvPosition = modelViewMatrix * instanceMatrix * vec4(pos + spreadOffset, 1.0);
 				gl_Position = projectionMatrix * mvPosition;
 			}
 		`,
