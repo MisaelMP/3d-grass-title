@@ -33,6 +33,17 @@
 	],
 	"author": "Misael Mercado",
 	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/misaelm/3d-grass-title.git"
+	},
+	"homepage": "https://github.com/misaelm/3d-grass-title#readme",
+	"bugs": {
+		"url": "https://github.com/misaelm/3d-grass-title/issues"
+	},
+	"publishConfig": {
+		"access": "public"
+	},
 	"devDependencies": {
 		"@types/node": "^24.0.14",
 		"@types/three": "^0.158.0",

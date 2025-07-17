@@ -1,0 +1,12 @@
+src/
+index.html
+vite.config.ts
+tsconfig.json
+vitest.config.ts
+vercel.json
+node_modules/
+.git/
+.gitignore
+*.test.ts
+*.spec.ts
+*.tgz
