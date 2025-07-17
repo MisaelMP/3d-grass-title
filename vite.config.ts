@@ -34,7 +34,7 @@ export default defineConfig(() => {
 				entry: 'src/index.ts',
 				name: 'GrassTitle',
 				fileName: 'index',
-				formats: ['es'],
+				formats: ['es' as const],
 			},
 			rollupOptions: {
 				external: ['lit', 'three'],

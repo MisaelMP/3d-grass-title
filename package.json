@@ -31,7 +31,7 @@
 		"shader",
 		"typescript"
 	],
-	"author": "",
+	"author": "Misael Mercado",
 	"license": "MIT",
 	"devDependencies": {
 		"@types/node": "^24.0.14",
