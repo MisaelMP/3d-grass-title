@@ -1,13 +1,13 @@
 import * as THREE from 'three';
 
-// Create grass field using canvas text sampling (following Codrops tutorial exactly)
+// Create grass field using canvas text sampling
 export function createGrassFieldFromTextCanvas(
 	text: string,
 	density: number = 500,
 	grassHeight: number = 1.0,
 	textGeometry: THREE.BufferGeometry
 ): THREE.InstancedMesh {
-	// Step 1: Create canvas and draw text (following tutorial)
+	// Step 1: Create canvas and draw text
 	const fontName = 'Arial';
 	const textureFontSize = 100;
 
@@ -24,7 +24,7 @@ export function createGrassFieldFromTextCanvas(
 	textCanvas.width = wTexture;
 	textCanvas.height = hTexture;
 
-	// Clear and draw text exactly like tutorial
+	// Clear and draw text
 	textCtx.font = `bold ${textureFontSize}px ${fontName}`;
 	textCtx.fillStyle = '#2a9d8f'; // Color for sampling
 	textCtx.clearRect(0, 0, textCanvas.width, textCanvas.height);
@@ -37,7 +37,7 @@ export function createGrassFieldFromTextCanvas(
 	const textureCoordinates: Array<{ x: number; y: number }> = [];
 	// Convert density to sampling step: higher density = smaller step = more particles
 	// Improved formula: density 100->step 8, density 500->step 4, density 1000->step 2, density 1500->step 1
-	const samplingStep = Math.max(1, Math.round(10 - (density / 150)));
+	const samplingStep = Math.max(1, Math.round(10 - density / 150));
 
 	const imageData = textCtx.getImageData(
 		0,
@@ -55,15 +55,19 @@ export function createGrassFieldFromTextCanvas(
 	}
 
 	// Step 3: Create geometry and material for particles - more 3D looking
-	const grassGeometry = new THREE.ConeGeometry(0.02 * grassHeight, 0.08 * grassHeight, 8); // Cone shape scaled by grassHeight
-	
+	const grassGeometry = new THREE.ConeGeometry(
+		0.02 * grassHeight,
+		0.08 * grassHeight,
+		8
+	); // Cone shape scaled by grassHeight
+
 	// Create shader material with wind animation and lighting
 	const grassMaterial = new THREE.ShaderMaterial({
 		uniforms: {
 			uTime: { value: 0 },
 			uColor: { value: new THREE.Color(0x4a7c59) }, // Will be updated by component
 			uLightIntensity: { value: 1.5 }, // Will be updated by component
-			uSpread: { value: 0.0 } // For click animation
+			uSpread: { value: 0.0 }, // For click animation
 		},
 		vertexShader: `
 			uniform float uTime;
@@ -114,7 +118,7 @@ export function createGrassFieldFromTextCanvas(
 				
 				gl_FragColor = vec4(finalColor, 1.0);
 			}
-		`
+		`,
 	});
 
 	// Step 4: Create instanced mesh - use ALL sampled coordinates for complete coverage
@@ -125,7 +129,7 @@ export function createGrassFieldFromTextCanvas(
 		particleCount
 	);
 
-	// Step 5: Convert canvas coordinates to 3D positions (following tutorial)
+	// Step 5: Convert canvas coordinates to 3D positions
 	const bbox = textGeometry.boundingBox!;
 	const textWidth = bbox.max.x - bbox.min.x;
 	const fontScaleFactor = textWidth / (wTexture * 0.8);
@@ -136,7 +140,7 @@ export function createGrassFieldFromTextCanvas(
 	for (let i = 0; i < particleCount; i++) {
 		const coord = textureCoordinates[i];
 
-		// Convert canvas coordinates to 3D world coordinates (tutorial method)
+		// Convert canvas coordinates to 3D world coordinates
 		const x3d = (coord.x - wTexture / 2) * fontScaleFactor;
 		const y3d = -(coord.y - hTexture / 2) * fontScaleFactor; // Flip Y
 		const z3d = bbox.max.z + 0.05;
@@ -148,7 +152,9 @@ export function createGrassFieldFromTextCanvas(
 		const scale = 0.8 + Math.random() * 0.4; // Random size variation
 
 		// Set transformation matrix with rotation and scale
-		matrix.makeRotationFromEuler(new THREE.Euler(rotationX, rotationY, rotationZ));
+		matrix.makeRotationFromEuler(
+			new THREE.Euler(rotationX, rotationY, rotationZ)
+		);
 		matrix.scale(new THREE.Vector3(scale, scale, scale));
 		matrix.setPosition(x3d, y3d, z3d);
 		grassField.setMatrixAt(i, matrix);
