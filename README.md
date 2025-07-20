@@ -1,5 +1,9 @@
 # 3D Grass Title
 
+[![CI](https://github.com/MisaelMP/3d-grass-title/workflows/CI/badge.svg)](https://github.com/MisaelMP/3d-grass-title/actions)
+[![npm version](https://badge.fury.io/js/3d-grass-title.svg)](https://www.npmjs.com/package/3d-grass-title)
+[![Security](https://img.shields.io/badge/security-audited-green.svg)](./SECURITY.md)
+
 A customizable 3D grass-textured title web component using Lit + TypeScript + Three.js.
 
 ## Features
@@ -44,14 +48,14 @@ npm install 3d-grass-title
 
 ## Properties
 
-| Property         | Type                       | Default     | Description                             |
-| ---------------- | -------------------------- | ----------- | --------------------------------------- |
-| `text`           | `string`                   | `'Welcome'` | The text to display                     |
-| `color`          | `string`                   | `'#33ff33'` | Base color of the grass shader          |
-| `lightIntensity` | `number`                   | `1.2`       | Intensity of the directional light      |
-| `rotation`       | `[number, number, number]` | `[0, 0, 0]` | Rotation angles in radians [x, y, z]    |
-| `cameraDistance` | `number`                   | `6`         | Distance of the camera from the text    |
-| `fontUrl`        | `string`                   | `undefined` | URL to a custom Three.js font JSON file |
+| Property         | Type                       | Default     | Description                                                      |
+| ---------------- | -------------------------- | ----------- | ---------------------------------------------------------------- |
+| `text`           | `string`                   | `'Welcome'` | The text to display                                              |
+| `color`          | `string`                   | `'#33ff33'` | Base color of the grass shader                                   |
+| `lightIntensity` | `number`                   | `1.2`       | Intensity of the directional light                               |
+| `rotation`       | `[number, number, number]` | `[0, 0, 0]` | Rotation angles in radians [x, y, z]                             |
+| `cameraDistance` | `number`                   | `6`         | Distance of the camera from the text                             |
+| `fontUrl`        | `string`                   | `undefined` | URL to a custom Three.js font JSON file                          |
 | `link`           | `string`                   | `undefined` | URL to navigate to when clicked (with particle spread animation) |
 
 ## Development

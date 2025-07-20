@@ -20,7 +20,11 @@
 		"preview": "vite preview",
 		"typecheck": "tsc --noEmit",
 		"test": "vitest",
-		"test:run": "vitest run"
+		"test:run": "vitest run",
+		"security:audit": "npm audit",
+		"security:audit-fix": "npm audit fix",
+		"security:check": "npm run security:audit && npm run typecheck && npm run test:run",
+		"prepublishOnly": "npm run security:check && npm run build"
 	},
 	"keywords": [
 		"web-component",
