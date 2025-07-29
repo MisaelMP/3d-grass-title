@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { GrassTitle } from './GrassTitle.js';
 import './GrassTitle.js'; // Register the custom element
 
@@ -83,6 +83,19 @@ describe('GrassTitle', () => {
 		// Create a fresh element for each test
 		element = document.createElement('grass-title') as GrassTitle;
 		document.body.appendChild(element);
+	});
+
+	afterEach(() => {
+		// Clean up element and stop any animations
+		if (element) {
+			element.remove();
+			// Force cleanup by calling disconnectedCallback if it exists
+			if (element.disconnectedCallback) {
+				element.disconnectedCallback();
+			}
+		}
+		// Clear document body
+		document.body.innerHTML = '';
 	});
 
 	it('should create an instance', () => {

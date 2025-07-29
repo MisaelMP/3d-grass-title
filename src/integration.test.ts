@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import './GrassTitle.js'; // Register the custom element
 
 // Mock Three.js for integration tests
@@ -62,6 +62,21 @@ describe('Integration Tests', () => {
 	beforeEach(() => {
 		container = document.createElement('div');
 		document.body.appendChild(container);
+	});
+
+	afterEach(() => {
+		// Clean up all elements and stop animations
+		const elements = container.querySelectorAll('grass-title');
+		elements.forEach(element => {
+			if (element && (element as any).disconnectedCallback) {
+				(element as any).disconnectedCallback();
+			}
+		});
+		if (container) {
+			container.remove();
+		}
+		// Clear document body
+		document.body.innerHTML = '';
 	});
 
 	it('should work with HTML attributes', async () => {
