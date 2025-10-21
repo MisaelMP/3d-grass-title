@@ -2,79 +2,56 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { GrassTitle } from './GrassTitle.js';
 import './GrassTitle.js'; // Register the custom element
 
+type ThreeMockHelpers = typeof import('../test/utils/createThreeMocks.ts');
+type ThreeMockContext = {
+        helpers: ThreeMockHelpers;
+        mocks: ReturnType<ThreeMockHelpers['createThreeMockFactories']>;
+};
+
+const { ensureThreeMocks } = vi.hoisted(() => {
+        let threeMockContext: Promise<ThreeMockContext> | null = null;
+        const ensureThreeMocks = () => {
+                if (!threeMockContext) {
+                        threeMockContext = import('../test/utils/createThreeMocks.ts').then(
+                                (helpers: ThreeMockHelpers) => ({
+                                        helpers,
+                                        mocks: helpers.createThreeMockFactories(vi),
+                                })
+                        );
+                }
+                return threeMockContext;
+        };
+
+        return { ensureThreeMocks };
+});
+
 // Mock Three.js since it requires WebGL context
-vi.mock('three', () => ({
-	Scene: vi.fn(() => ({ 
-		add: vi.fn(), 
-		remove: vi.fn(),
-		children: []
-	})),
-	PerspectiveCamera: vi.fn(() => ({ 
-		position: { set: vi.fn(), setZ: vi.fn() },
-		aspect: 1,
-		updateProjectionMatrix: vi.fn()
-	})),
-	WebGLRenderer: vi.fn(() => ({ 
-		setSize: vi.fn(), 
-		setPixelRatio: vi.fn(),
-		render: vi.fn(),
-		dispose: vi.fn()
-	})),
-	DirectionalLight: vi.fn(() => ({ 
-		position: { set: vi.fn() },
-		intensity: 1
-	})),
-	AmbientLight: vi.fn(() => ({})),
-	Color: vi.fn(() => ({ 
-		multiplyScalar: vi.fn(() => ({ multiplyScalar: vi.fn() }))
-	})),
-	BufferGeometry: vi.fn(),
-	InstancedMesh: vi.fn(() => ({
-		material: {
-			uniforms: {
-				uColor: { value: {} },
-				uLightIntensity: { value: 1 }
-			}
-		},
-		rotation: { set: vi.fn() },
-		setMatrixAt: vi.fn(),
-		setColorAt: vi.fn(),
-		instanceMatrix: { needsUpdate: false },
-		instanceColor: { needsUpdate: false }
-	})),
-	Matrix4: vi.fn(() => ({
-		makeRotationFromEuler: vi.fn(),
-		scale: vi.fn(),
-		setPosition: vi.fn()
-	})),
-	Euler: vi.fn(),
-	Vector3: vi.fn(),
-	ShaderMaterial: vi.fn()
-}));
+vi.mock('three', async () => {
+        const { helpers, mocks } = await ensureThreeMocks();
+        return helpers.createThreeModule(vi, mocks);
+});
+
+vi.mock('three/examples/jsm/geometries/TextGeometry.js', async () => {
+        const { helpers, mocks } = await ensureThreeMocks();
+        return helpers.createTextGeometryModule(mocks);
+});
 
 // Mock FontLoader
-vi.mock('three/examples/jsm/loaders/FontLoader.js', () => ({
-	FontLoader: vi.fn(() => ({
-		load: vi.fn((url, onLoad) => {
-			// Simulate successful font loading
-			setTimeout(() => onLoad({}), 0);
-		})
-	}))
-}));
+vi.mock('three/examples/jsm/loaders/FontLoader.js', async () => {
+        const { helpers, mocks } = await ensureThreeMocks();
+        return helpers.createFontLoaderModule(vi, mocks.createMockFont);
+});
 
 // Mock shader functions
-vi.mock('./shaders/grassShader.js', () => ({
-	createGrassShaderMaterialAsync: vi.fn(() => Promise.resolve({})),
-	createGrassFieldFromTextCanvas: vi.fn(() => ({
-		material: {
-			uniforms: {
-				uColor: { value: {} },
-				uLightIntensity: { value: 1 }
-			}
-		},
-		rotation: { set: vi.fn() }
-	}))
-}));
+vi.mock('./shaders/grassShader.js', async () => {
+        const { mocks } = await ensureThreeMocks();
+        return {
+                createGrassShaderMaterialAsync: vi.fn(() =>
+                        Promise.resolve(new mocks.MockShaderMaterial())
+                ),
+                createGrassFieldFromTextCanvas: vi.fn(() => new mocks.MockInstancedMesh()),
+        };
+});
 
 describe('GrassTitle', () => {
 	let element: GrassTitle;
