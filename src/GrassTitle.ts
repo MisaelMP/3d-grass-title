@@ -194,7 +194,7 @@ export class GrassTitle extends LitElement {
 			const textGeometry = new TextGeometry(this.text, {
 				font: this.font,
 				size: 1,
-				height: 0.5,
+				depth: 0.5,
 				curveSegments: 12,
 				bevelEnabled: true,
 				bevelThickness: 0.1,
