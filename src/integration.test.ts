@@ -1,73 +1,72 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import './GrassTitle.js'; // Register the custom element
 
+type ThreeMockHelpers = typeof import('../test/utils/createThreeMocks.ts');
+type ThreeMockContext = {
+        helpers: ThreeMockHelpers;
+        mocks: ReturnType<ThreeMockHelpers['createThreeMockFactories']>;
+};
+
+const { ensureThreeMocks } = vi.hoisted(() => {
+        let threeMockContext: Promise<ThreeMockContext> | null = null;
+        const ensureThreeMocks = () => {
+                if (!threeMockContext) {
+                        threeMockContext = import('../test/utils/createThreeMocks.ts').then(
+                                (helpers: ThreeMockHelpers) => ({
+                                        helpers,
+                                        mocks: helpers.createThreeMockFactories(vi),
+                                })
+                        );
+                }
+                return threeMockContext;
+        };
+
+        return { ensureThreeMocks };
+});
+
 // Mock Three.js for integration tests
-vi.mock('three', () => ({
-	Scene: vi.fn(() => ({ 
-		add: vi.fn(), 
-		remove: vi.fn(),
-		children: [],
-		background: null
-	})),
-	PerspectiveCamera: vi.fn(() => ({ 
-		position: { set: vi.fn(), setZ: vi.fn() },
-		aspect: 1,
-		updateProjectionMatrix: vi.fn()
-	})),
-	WebGLRenderer: vi.fn(() => ({ 
-		setSize: vi.fn(), 
-		setPixelRatio: vi.fn(),
-		render: vi.fn(),
-		dispose: vi.fn()
-	})),
-	DirectionalLight: vi.fn(() => ({ 
-		position: { set: vi.fn() },
-		intensity: 1
-	})),
-	AmbientLight: vi.fn(() => ({})),
-	Color: vi.fn(() => ({ 
-		multiplyScalar: vi.fn(() => ({ multiplyScalar: vi.fn() }))
-	})),
-}));
+vi.mock('three', async () => {
+        const { helpers, mocks } = await ensureThreeMocks();
+        return helpers.createThreeModule(vi, mocks);
+});
 
-vi.mock('three/examples/jsm/loaders/FontLoader.js', () => ({
-	FontLoader: vi.fn(() => ({
-		load: vi.fn((url, onLoad, onProgress, onError) => {
-			// Test both success and failure scenarios
-			if (url.includes('invalid')) {
-				setTimeout(() => onError?.(new Error('Font not found')), 0);
-			} else {
-				setTimeout(() => onLoad?.({}), 0);
-			}
-		})
-	}))
-}));
+vi.mock('three/examples/jsm/geometries/TextGeometry.js', async () => {
+        const { helpers, mocks } = await ensureThreeMocks();
+        return helpers.createTextGeometryModule(mocks);
+});
 
-vi.mock('./shaders/grassShader.js', () => ({
-	createGrassShaderMaterialAsync: vi.fn(() => Promise.resolve({})),
-	createGrassFieldFromTextCanvas: vi.fn(() => ({
-		material: {
-			uniforms: {
-				uColor: { value: {} },
-				uLightIntensity: { value: 1 }
-			}
-		},
-		rotation: { set: vi.fn() }
-	}))
-}));
+vi.mock('three/examples/jsm/loaders/FontLoader.js', async () => {
+        const { helpers, mocks } = await ensureThreeMocks();
+        return helpers.createFontLoaderModule(vi, mocks.createMockFont, {
+                shouldFail: (url) => url.includes('invalid'),
+        });
+});
+
+vi.mock('./shaders/grassShader.js', async () => {
+        const { mocks } = await ensureThreeMocks();
+        return {
+                createGrassShaderMaterialAsync: vi.fn(() =>
+                        Promise.resolve(new mocks.MockShaderMaterial())
+                ),
+                createGrassFieldFromTextCanvas: vi.fn(() => new mocks.MockInstancedMesh()),
+        };
+});
 
 describe('Integration Tests', () => {
-	let container: HTMLDivElement;
+        let container: HTMLDivElement;
+        let consoleErrorSpy: ReturnType<typeof vi.spyOn>;
 
-	beforeEach(() => {
-		container = document.createElement('div');
-		document.body.appendChild(container);
-	});
+        beforeEach(() => {
+                consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+                container = document.createElement('div');
+                document.body.appendChild(container);
+        });
 
-	afterEach(() => {
-		// Clean up all elements and stop animations
-		const elements = container.querySelectorAll('grass-title');
-		elements.forEach(element => {
+        afterEach(() => {
+                consoleErrorSpy.mockRestore();
+                // Clean up all elements and stop animations
+                const elements = container.querySelectorAll('grass-title');
+                elements.forEach(element => {
 			if (element && (element as any).disconnectedCallback) {
 				(element as any).disconnectedCallback();
 			}
